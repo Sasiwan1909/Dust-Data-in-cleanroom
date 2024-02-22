@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="http://emag.directindustry.com/wp-content/uploads/sites/3/iStock-1141230722-1250x821.jpg">
+    <title>History Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #070652;
+            color: #fff;
+            text-align: center;
+            padding: 1em;
+        }
+        #data-container {
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #070652;
+            color: #fff;
+        }
+    </style>
+    <script>
+        // รหัสของ ThinkSpeak channel ของคุณ
+        var channelID = '2431629';
+
+        // API key สำหรับการอ่านข้อมูล
+        var readAPIKey = '09ONQ114PPM2P3FE';
+
+        // จำนวนข้อมูลที่ต้องการดึง
+        var numPoints = 100;
+
+        // URL สำหรับดึงข้อมูลจาก ThingSpeak และเรียงลำดับตามเวลา
+        var url = 'https://api.thingspeak.com/channels/' + channelID + '/feeds.json?api_key=' + readAPIKey + '&results=' + numPoints + '&timezone=Asia/Bangkok';
+
+        // ดึงข้อมูลโดยใช้ Fetch API
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                // เรียงลำดับข้อมูลตามเวลา
+                var sortedData = data.feeds.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                // ประมวลผลข้อมูลและแสดงผล
+                processData(sortedData);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+
+
+        // ฟังก์ชั่นสำหรับประมวลผลข้อมูล
+        function processData(data) {
+            // เข้าถึงข้อมูล feeds
+            var feeds = data;
+
+            // สร้าง HTML เพื่อแสดงข้อมูล
+            var html = '<table>';
+            html += '<tr><th>Timestamp</th><th>Field1</th><th>Field2</th><th>Field3</th><th>Field4</th><th>Field5</th><th>Field6</th></tr>';
+
+            feeds.forEach(feed => {
+                var date = new Date(feed.created_at);
+                var thaiDate = new Intl.DateTimeFormat('th-TH', {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+            timeZone: 'Asia/Bangkok'
+        }).format(date);
+                html += '<tr>';
+                html += '<td>' + feed.created_at + '</td>';
+                html += '<td>' + feed.field1 + '</td>';
+                html += '<td>' + feed.field2 + '</td>';
+                html += '<td>' + feed.field3 + '</td>';
+                html += '<td>' + feed.field4 + '</td>';
+                html += '<td>' + feed.field5 + '</td>';
+                html += '<td>' + feed.field6 + '</td>';
+                html += '</tr>';
+            });
+
+            html += '</table>';
+
+            // แสดง HTML ใน element ที่มี id="data-container"
+            document.getElementById('data-container').innerHTML = html;
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>History Data</h1>
+    </header>
+    <div id="data-container"></div>
+</body>
+</html>
